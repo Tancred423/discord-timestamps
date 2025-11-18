@@ -26,7 +26,7 @@ jobs:
         run: npm run format:check
 
       - name: Run linter
-        run: npm run lint || echo "No lint script found, skipping"
+        run: npm run lint
 
       - name: Build
         run: npm run build
@@ -86,22 +86,10 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Get lowercase repository name
+      - name: Lowercase repository name
         id: repo
         run: |
-          REPO_LOWER=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
-          echo "repo=$REPO_LOWER" >> $GITHUB_OUTPUT
-
-      - name: Ensure deployment directory exists
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.DEPLOY_HOST }}
-          username: ${{ secrets.DEPLOY_USER }}
-          key: ${{ secrets.DEPLOY_SSH_KEY }}
-          script: |
-            mkdir -p ${{ secrets.DEPLOY_PATH }}
-            chmod 755 ${{ secrets.DEPLOY_PATH }}
-            chown -R ${{ secrets.DEPLOY_USER }}:${{ secrets.DEPLOY_USER }} ${{ secrets.DEPLOY_PATH }} 2>/dev/null || true
+          echo "repo=$(echo '${{ github.repository }}' | tr '[:upper:]' '[:lower:]')" >> $GITHUB_OUTPUT
 
       - name: Copy docker-compose.prod.yml to server
         uses: appleboy/scp-action@master
@@ -121,27 +109,27 @@ jobs:
           script: |
             set -e
             cd ${{ secrets.DEPLOY_PATH }}
-            
+
             REPO_NAME_LOWER="${{ steps.repo.outputs.repo }}"
-            
-            # Update docker-compose.prod.yml with correct image names (lowercase)
+
+            # Replace image name using lowercase repo name
             sed -i "s|ghcr.io/\${GITHUB_REPOSITORY,,}:latest|ghcr.io/${REPO_NAME_LOWER}:latest|g" docker-compose.prod.yml
-            
+
             echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.repository_owner }} --password-stdin
-            
+
             echo "Stopping existing containers..."
             docker compose -f docker-compose.prod.yml down --volumes=false || true
-            
+
             echo "Pulling latest images..."
             docker compose -f docker-compose.prod.yml pull
-            
+
             echo "Starting containers..."
             docker compose -f docker-compose.prod.yml up -d --remove-orphans
-            
+
             echo "Checking container status..."
             docker compose -f docker-compose.prod.yml ps
-            
+
             echo "Cleaning up old images..."
             docker image prune -af --filter "until=24h" || true
-            
+
             echo "Deployment completed successfully!"
