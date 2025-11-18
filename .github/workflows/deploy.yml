@@ -94,9 +94,13 @@ jobs:
           username: ${{ secrets.DEPLOY_USER }}
           key: ${{ secrets.DEPLOY_SSH_KEY }}
           script: |
+            echo "Deploy path is: ${{ secrets.DEPLOY_PATH }}"
+            ls -la ${{ secrets.DEPLOY_PATH }} || echo "Directory does not exist yet"
             mkdir -p ${{ secrets.DEPLOY_PATH }}
             chmod 755 ${{ secrets.DEPLOY_PATH }}
             rm -f ${{ secrets.DEPLOY_PATH }}/docker-compose.prod.yml
+            echo "Directory prepared:"
+            ls -la ${{ secrets.DEPLOY_PATH }}
 
       - name: Copy docker-compose.prod.yml to server
         uses: appleboy/scp-action@master
@@ -107,7 +111,6 @@ jobs:
           source: "docker-compose.prod.yml"
           target: ${{ secrets.DEPLOY_PATH }}
           overwrite: true
-          rm: true
 
       - name: Deploy to server
         uses: appleboy/ssh-action@master
