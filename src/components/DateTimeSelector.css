@@ -1,0 +1,132 @@
+.datetime-selector {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  justify-content: space-between;
+}
+
+.timezone-picker-wrapper,
+.datetime-picker-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.input-label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #b9bbbe;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+:root[data-theme='light'] .input-label {
+  color: #4e5058;
+}
+
+.datetime-input-group {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.datetime-input,
+.now-button,
+.timezone-select {
+  background-color: #202225;
+  border: 1px solid #202225;
+  border-radius: 3px;
+  color: white;
+  padding: 0.625rem;
+  font-family: 'Roboto Condensed', sans-serif;
+  font-size: 1rem;
+  transition:
+    border-color 0.15s ease,
+    background-color 0.15s ease;
+  color-scheme: dark;
+}
+
+:root[data-theme='light'] .datetime-input,
+:root[data-theme='light'] .timezone-select {
+  background-color: #ffffff;
+  border-color: #e3e5e8;
+  color: #2e3338;
+  color-scheme: light;
+}
+
+:root[data-theme='light'] .datetime-input:hover,
+:root[data-theme='light'] .timezone-select:hover {
+  border-color: #b9bbbe;
+}
+
+:root[data-theme='light'] .datetime-input:focus,
+:root[data-theme='light'] .timezone-select:focus {
+  border-color: #5865f2;
+  background-color: #f2f3f5;
+}
+
+.datetime-input:hover,
+.timezone-select:hover {
+  border-color: #040405;
+}
+
+.datetime-input:focus,
+.timezone-select:focus {
+  outline: none;
+  border-color: #5865f2;
+  background-color: #1e1f22;
+}
+
+.datetime-input {
+  flex: 1;
+  min-width: 0;
+}
+
+.timezone-select {
+  width: 100%;
+  cursor: pointer;
+}
+
+.timezone-select optgroup {
+  font-weight: 700;
+  font-size: 0.875rem;
+  color: #b5bac1;
+  padding: 0.5rem 0;
+}
+
+:root[data-theme='light'] .timezone-select optgroup {
+  color: #4e5058;
+}
+
+.now-button {
+  cursor: pointer;
+  background-color: #5865f2;
+  border-color: #5865f2;
+  padding: 0.625rem 1.25rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.now-button:hover {
+  background-color: #4752c4;
+  border-color: #4752c4;
+}
+
+.now-button:active {
+  transform: translateY(1px);
+}
+
+@media screen and (max-width: 768px) {
+  .datetime-selector {
+    border-radius: 0;
+    margin: 0 !important;
+    padding: 1rem;
+  }
+
+  .datetime-input-group {
+    flex-direction: column;
+  }
+
+  .now-button {
+    width: 100%;
+  }
+}

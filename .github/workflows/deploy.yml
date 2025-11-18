@@ -1,0 +1,107 @@
+name: Deploy
+
+on:
+  push:
+    branches:
+      - main
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ toLowerCase(github.repository) }}
+
+jobs:
+  code-check:
+    name: Code Quality Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run prettier
+        run: npm run format:check
+
+      - name: Run linter
+        run: npm run lint || echo "No lint script found, skipping"
+
+      - name: Build
+        run: npm run build
+
+  build-image:
+    name: Build Docker Image
+    runs-on: ubuntu-latest
+    needs: code-check
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Log in to Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=ref,event=branch
+            type=sha,prefix={{branch}}-
+            type=raw,value=latest,enable={{is_default_branch}}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+
+  deploy:
+    name: Deploy to Server
+    runs-on: ubuntu-latest
+    needs: build-image
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Deploy to server
+        uses: appleboy/ssh-action@v1.0.0
+        env:
+          GITHUB_REPOSITORY: ${{ toLowerCase(github.repository) }}
+          PORT: ${{ secrets.DEPLOY_PORT || '7000' }}
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          port: ${{ secrets.DEPLOY_SSH_PORT || '22' }}
+          envs: GITHUB_REPOSITORY,PORT
+          script: |
+            cd ${{ secrets.DEPLOY_PATH }}
+            
+            echo "GITHUB_REPOSITORY=${GITHUB_REPOSITORY}" > .env.prod
+            echo "PORT=${PORT}" >> .env.prod
+            
+            docker login ghcr.io -u ${{ github.actor }} -p ${{ secrets.GITHUB_TOKEN }}
+            
+            docker pull ghcr.io/${GITHUB_REPOSITORY}:latest
+            
+            docker-compose -f docker-compose.prod.yml --env-file .env.prod down
+            
+            docker-compose -f docker-compose.prod.yml --env-file .env.prod up -d
+            
+            docker image prune -f

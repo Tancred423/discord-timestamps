@@ -1,5 +1,9 @@
-# Dependency directories
 node_modules/
-
-# Config files with sensitive data
+dist/
 config.json
+.env
+*.log
+.DS_Store
+.eslintcache
+.vite
+.idx

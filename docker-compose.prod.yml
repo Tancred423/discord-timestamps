@@ -1,0 +1,14 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: production
+    image: ghcr.io/${GITHUB_REPOSITORY,,}:latest
+    ports:
+      - "${PORT:-7000}:7000"
+    environment:
+      - IS_PROD=true
+      - PORT=7000
+    restart: always
+

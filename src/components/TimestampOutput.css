@@ -1,0 +1,160 @@
+.timestamp-output {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.875rem;
+  padding: 0.875rem;
+}
+
+@media screen and (min-width: 769px) {
+  .timestamp-output {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.timestamp-card {
+  background-color: #2b2d31;
+  border: 2px solid #1e1f22;
+  border-radius: 8px;
+  padding: 1rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.timestamp-card:first-child {
+  grid-column: 1 / -1;
+}
+
+@media screen and (max-width: 768px) {
+  .timestamp-card:first-child {
+    grid-column: 1;
+  }
+}
+
+.timestamp-card:hover {
+  border-color: #5865f2;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(88, 101, 242, 0.2);
+}
+
+.timestamp-card.copied {
+  border-color: #3ba55d;
+  background-color: #2d3136;
+}
+
+:root[data-theme='light'] .timestamp-card {
+  background-color: #ffffff;
+  border-color: #e3e5e8;
+}
+
+:root[data-theme='light'] .timestamp-card:hover {
+  border-color: #5865f2;
+  box-shadow: 0 4px 12px rgba(88, 101, 242, 0.15);
+}
+
+:root[data-theme='light'] .timestamp-card.copied {
+  border-color: #3ba55d;
+  background-color: #f6f6f7;
+}
+
+.card-title {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #b5bac1;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.card-preview {
+  font-size: 1rem;
+  color: #ffffff;
+  padding: 0.625rem;
+  background-color: #1e1f22;
+  border-radius: 4px;
+  border-left: 3px solid #5865f2;
+  min-height: 2rem;
+  display: flex;
+  align-items: center;
+}
+
+.card-code {
+  font-family: 'Courier New', monospace;
+  font-size: 0.875rem;
+  color: #00b0f4;
+  background-color: #1e1f22;
+  padding: 0.5rem;
+  border-radius: 4px;
+  word-break: break-all;
+  user-select: all;
+}
+
+.card-action {
+  font-size: 0.8125rem;
+  color: #5865f2;
+  text-align: center;
+  font-weight: 500;
+  margin-top: auto;
+  padding-top: 0.5rem;
+  border-top: 1px solid #1e1f22;
+  transition: all 0.2s ease;
+}
+
+:root[data-theme='light'] .card-title {
+  color: #4e5058;
+}
+
+:root[data-theme='light'] .card-preview {
+  color: #2e3338;
+  background-color: #ffffff;
+  border-left-color: #5865f2;
+}
+
+:root[data-theme='light'] .card-code {
+  color: #0066cc;
+  background-color: #ffffff;
+}
+
+:root[data-theme='light'] .card-action {
+  border-top-color: #e3e5e8;
+}
+
+.card-action.show-copied {
+  color: #3ba55d;
+  animation: copyPulse 0.3s ease;
+}
+
+@keyframes copyPulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.timestamp-card:hover .card-action:not(.show-copied) {
+  color: #ffffff;
+}
+
+:root[data-theme='light'] .timestamp-card:hover .card-action:not(.show-copied) {
+  color: #2e3338;
+}
+
+@media screen and (max-width: 768px) {
+  .timestamp-output {
+    border-radius: 0;
+    margin: 0 !important;
+    padding: 0.75rem;
+    flex-grow: 1;
+    grid-template-columns: 1fr;
+  }
+
+  .timestamp-card {
+    padding: 0.875rem;
+  }
+}

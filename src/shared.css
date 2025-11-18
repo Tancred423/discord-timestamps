@@ -1,0 +1,21 @@
+.outer-field {
+  background-color: #36393f;
+  border-radius: 5px;
+  box-shadow: 2px 2px 2px rgba(0, 0, 0, 0.2);
+  padding: 1.25rem;
+  transition:
+    background-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+:root[data-theme='light'] .outer-field {
+  background-color: #f2f3f5;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+@media screen and (max-width: 768px) {
+  .outer-field {
+    border-radius: 0;
+    box-shadow: none;
+  }
+}
