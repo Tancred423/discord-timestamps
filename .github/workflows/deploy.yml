@@ -95,15 +95,18 @@ jobs:
         run: |
           ssh-keyscan -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
 
+      - name: Copy docker-compose.prod.yml to server
+        run: |
+          scp docker-compose.prod.yml ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:~/discord-timestamps/docker-compose.prod.yml
+
       - name: Deploy to server
         run: |
           ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'REMOTE_EOF'
             set -e
-            cd ~/discord-timestamps
             
-            # Pull latest docker-compose.prod.yml
-            git fetch origin
-            git checkout origin/main -- docker-compose.prod.yml || git checkout origin/master -- docker-compose.prod.yml
+            # Ensure deployment directory exists
+            mkdir -p ~/discord-timestamps
+            cd ~/discord-timestamps
 
             REPO_NAME="${{ github.repository }}"
             REPO_NAME_LOWER=$(echo "${REPO_NAME}" | tr '[:upper:]' '[:lower:]')
