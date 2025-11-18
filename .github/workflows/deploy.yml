@@ -83,25 +83,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Convert repository name to lowercase
-        id: repo_name
-        run: echo "lowercase=${GITHUB_REPOSITORY,,}" >> $GITHUB_OUTPUT
-
-      - name: Prepare deployment directory
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.DEPLOY_HOST }}
-          username: ${{ secrets.DEPLOY_USER }}
-          key: ${{ secrets.DEPLOY_SSH_KEY }}
-          script: |
-            echo "Deploy path is: ${{ secrets.DEPLOY_PATH }}"
-            ls -la ${{ secrets.DEPLOY_PATH }} || echo "Directory does not exist yet"
-            mkdir -p ${{ secrets.DEPLOY_PATH }}
-            chmod 755 ${{ secrets.DEPLOY_PATH }}
-            rm -f ${{ secrets.DEPLOY_PATH }}/docker-compose.prod.yml
-            echo "Directory prepared:"
-            ls -la ${{ secrets.DEPLOY_PATH }}
-
       - name: Copy docker-compose.prod.yml to server
         uses: appleboy/scp-action@master
         with:
@@ -110,27 +91,33 @@ jobs:
           key: ${{ secrets.DEPLOY_SSH_KEY }}
           source: "docker-compose.prod.yml"
           target: ${{ secrets.DEPLOY_PATH }}
-          overwrite: true
 
       - name: Deploy to server
         uses: appleboy/ssh-action@master
-        env:
-          GITHUB_REPOSITORY: ${{ steps.repo_name.outputs.lowercase }}
         with:
           host: ${{ secrets.DEPLOY_HOST }}
           username: ${{ secrets.DEPLOY_USER }}
           key: ${{ secrets.DEPLOY_SSH_KEY }}
-          envs: GITHUB_REPOSITORY
           script: |
+            set -e
             cd ${{ secrets.DEPLOY_PATH }}
             
-            docker login ghcr.io -u ${{ github.actor }} -p ${{ secrets.GITHUB_TOKEN }}
+            echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.repository_owner }} --password-stdin
             
-            docker pull ghcr.io/${GITHUB_REPOSITORY}:latest
+            echo "Stopping existing containers..."
+            docker compose -f docker-compose.prod.yml down --volumes=false || true
             
-            docker compose -f docker-compose.prod.yml down
+            echo "Pulling latest images..."
+            docker compose -f docker-compose.prod.yml pull
             
-            docker compose -f docker-compose.prod.yml up -d
+            echo "Starting containers..."
+            docker compose -f docker-compose.prod.yml up -d --remove-orphans
             
-            docker image prune -f
+            echo "Checking container status..."
+            docker compose -f docker-compose.prod.yml ps
+            
+            echo "Cleaning up old images..."
+            docker image prune -af --filter "until=24h" || true
+            
+            echo "Deployment completed successfully!"
 

@@ -4,6 +4,8 @@ This is a simple tool to create Discord timestamps.
 
 Discord timestamps are automatically updating parts in your message. Every user will see these in their timezone. Choose whatever date and time you want, copy the code and paste it in your Discord message. Done!
 
+[Visit Discord Timestamps](https://discord-timestamps.tancred.de/)
+
 Example of a relative timestamp in action:
 
 ![Example](https://discord-timestamps.tancred.de/preview.gif)
