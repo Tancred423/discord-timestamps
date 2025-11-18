@@ -15,7 +15,7 @@ Example of a relative timestamp in action:
 1. Start dev container
 
 ```bash
-docker-compose up -d
+docker compose up -d
 ```
 
 2. Connect to container
@@ -38,7 +38,7 @@ I recommend to use an automatic deployment via GitHub Actions.
 But if you want, you can manually start the container on Prod:
 
 ```bash
-docker-compose -f docker-compose.prod.yml up -d
+docker compose -f docker-compose.prod.yml up -d
 ```
 
 ### GitHub Actions Setup
