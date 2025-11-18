@@ -93,21 +93,18 @@ jobs:
           host: ${{ secrets.DEPLOY_HOST }}
           username: ${{ secrets.DEPLOY_USER }}
           key: ${{ secrets.DEPLOY_SSH_KEY }}
-          port: '22'
           source: "docker-compose.prod.yml"
           target: ${{ secrets.DEPLOY_PATH }}
 
       - name: Deploy to server
-        uses: appleboy/ssh-action@v1.0.0
+        uses: appleboy/ssh-action@master
         env:
           GITHUB_REPOSITORY: ${{ steps.repo_name.outputs.lowercase }}
-          PORT: ${{ secrets.DEPLOY_PORT || '7000' }}
         with:
           host: ${{ secrets.DEPLOY_HOST }}
           username: ${{ secrets.DEPLOY_USER }}
           key: ${{ secrets.DEPLOY_SSH_KEY }}
-          port: '22'
-          envs: GITHUB_REPOSITORY,PORT
+          envs: GITHUB_REPOSITORY
           script: |
             cd ${{ secrets.DEPLOY_PATH }}
             
