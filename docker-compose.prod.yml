@@ -7,6 +7,8 @@ services:
     image: ghcr.io/${GITHUB_REPOSITORY,,}:latest
     ports:
       - "${PORT:-7000}:7000"
+    env_file:
+      - .env
     environment:
       - IS_PROD=true
       - PORT=7000

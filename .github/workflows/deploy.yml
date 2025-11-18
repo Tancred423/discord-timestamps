@@ -101,16 +101,13 @@ jobs:
           script: |
             cd ${{ secrets.DEPLOY_PATH }}
             
-            echo "GITHUB_REPOSITORY=${GITHUB_REPOSITORY}" > .env.prod
-            echo "PORT=${PORT}" >> .env.prod
-            
             docker login ghcr.io -u ${{ github.actor }} -p ${{ secrets.GITHUB_TOKEN }}
             
             docker pull ghcr.io/${GITHUB_REPOSITORY}:latest
             
-            docker-compose -f docker-compose.prod.yml --env-file .env.prod down
+            docker-compose -f docker-compose.prod.yml down
             
-            docker-compose -f docker-compose.prod.yml --env-file .env.prod up -d
+            docker-compose -f docker-compose.prod.yml up -d
             
             docker image prune -f
 
