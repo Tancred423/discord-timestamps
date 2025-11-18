@@ -7,7 +7,7 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ toLowerCase(github.repository) }}
+  IMAGE_NAME: ${{ github.repository }}
 
 jobs:
   code-check:
@@ -53,11 +53,15 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Convert repository name to lowercase
+        id: repo_name
+        run: echo "lowercase=${GITHUB_REPOSITORY,,}" >> $GITHUB_OUTPUT
+
       - name: Extract metadata
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          images: ${{ env.REGISTRY }}/${{ steps.repo_name.outputs.lowercase }}
           tags: |
             type=ref,event=branch
             type=sha,prefix={{branch}}-
@@ -79,10 +83,14 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Convert repository name to lowercase
+        id: repo_name
+        run: echo "lowercase=${GITHUB_REPOSITORY,,}" >> $GITHUB_OUTPUT
+
       - name: Deploy to server
         uses: appleboy/ssh-action@v1.0.0
         env:
-          GITHUB_REPOSITORY: ${{ toLowerCase(github.repository) }}
+          GITHUB_REPOSITORY: ${{ steps.repo_name.outputs.lowercase }}
           PORT: ${{ secrets.DEPLOY_PORT || '7000' }}
         with:
           host: ${{ secrets.DEPLOY_HOST }}
@@ -105,3 +113,4 @@ jobs:
             docker-compose -f docker-compose.prod.yml --env-file .env.prod up -d
             
             docker image prune -f
+
