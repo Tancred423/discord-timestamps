@@ -92,6 +92,17 @@ jobs:
           REPO_LOWER=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
           echo "repo=$REPO_LOWER" >> $GITHUB_OUTPUT
 
+      - name: Ensure deployment directory exists
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          script: |
+            mkdir -p ${{ secrets.DEPLOY_PATH }}
+            chmod 755 ${{ secrets.DEPLOY_PATH }}
+            chown -R ${{ secrets.DEPLOY_USER }}:${{ secrets.DEPLOY_USER }} ${{ secrets.DEPLOY_PATH }} 2>/dev/null || true
+
       - name: Copy docker-compose.prod.yml to server
         uses: appleboy/scp-action@master
         with:
