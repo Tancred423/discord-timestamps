@@ -1,3 +1,7 @@
+> **Archived**
+>
+> Moved to https://gitlab.com/tancred/discord-timestamps
+
 # Discord Timestamps
 
 This is a simple tool to create Discord timestamps.
